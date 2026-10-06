@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -21,17 +21,41 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+// Lazy & safe initialization of Firebase
+let firebaseAppInstance: FirebaseApp | null = null;
+let firebaseAuthInstance: Auth | null = null;
 
-// Google Provider
-const googleProvider = new GoogleAuthProvider();
+function getFirebaseAuthInstance(): Auth | null {
+  if (firebaseAuthInstance) return firebaseAuthInstance;
+
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (!apiKey || apiKey === 'your_firebase_api_key' || apiKey === 'undefined') {
+    return null;
+  }
+
+  try {
+    if (!getApps().length) {
+      firebaseAppInstance = initializeApp(firebaseConfig);
+    } else {
+      firebaseAppInstance = getApp();
+    }
+    firebaseAuthInstance = getAuth(firebaseAppInstance);
+    return firebaseAuthInstance;
+  } catch (error) {
+    console.warn('Firebase initialization skipped or failed:', error);
+    return null;
+  }
+}
 
 export const firebaseAuth = {
   // Google Sign-In
   signInWithGoogle: async () => {
+    const auth = getFirebaseAuthInstance();
+    if (!auth) {
+      return { user: null, error: 'Firebase Auth is not configured' };
+    }
     try {
+      const googleProvider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       return { 
@@ -54,6 +78,10 @@ export const firebaseAuth = {
 
   // Email/Password Registration
   register: async (email: string, password: string, displayName?: string) => {
+    const auth = getFirebaseAuthInstance();
+    if (!auth) {
+      return { user: null, error: 'Firebase Auth is not configured' };
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -83,6 +111,10 @@ export const firebaseAuth = {
 
   // Email/Password Login
   login: async (email: string, password: string) => {
+    const auth = getFirebaseAuthInstance();
+    if (!auth) {
+      return { user: null, error: 'Firebase Auth is not configured' };
+    }
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -106,6 +138,10 @@ export const firebaseAuth = {
 
   // Logout
   logout: async () => {
+    const auth = getFirebaseAuthInstance();
+    if (!auth) {
+      return { error: null };
+    }
     try {
       await firebaseSignOut(auth);
       return { error: null };
@@ -117,18 +153,24 @@ export const firebaseAuth = {
 
   // Get Current User
   getCurrentUser: (): FirebaseUser | null => {
-    return auth.currentUser;
+    const auth = getFirebaseAuthInstance();
+    return auth ? auth.currentUser : null;
   },
 
   // Auth State Change Listener
   onAuthStateChange: (callback: (user: FirebaseUser | null) => void) => {
+    const auth = getFirebaseAuthInstance();
+    if (!auth) {
+      callback(null);
+      return () => {};
+    }
     return firebaseAuthStateChanged(auth, callback);
   },
 
   // Get Auth Instance
-  getAuth: (): Auth => {
-    return auth;
+  getAuth: (): Auth | null => {
+    return getFirebaseAuthInstance();
   },
 };
 
-export default auth;
+export default getFirebaseAuthInstance();
