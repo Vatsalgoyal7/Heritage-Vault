@@ -71,37 +71,26 @@ function LoginForm() {
     setGoogleLoading(true);
     setError('');
     try {
-      let loggedUser: any = null;
-
-      // Try Firebase Auth Google sign-in
-      try {
-        const result = await firebaseAuth.signInWithGoogle();
-        if (result.user) {
-          loggedUser = result.user;
-        }
-      } catch (fbErr) {
-        console.log('Firebase Google Sign-In notice:', fbErr);
+      const result = await firebaseAuth.signInWithGoogle();
+      if (result.error || !result.user) {
+        throw new Error(result.error || 'Google sign-in failed');
       }
-
-      // If Firebase sign-in was not active or returned error, build fallback user object
-      if (!loggedUser) {
-        loggedUser = {
-          id: 'user_google_' + Date.now(),
-          name: 'Vatsal Goyal (Google)',
-          displayName: 'Vatsal Goyal',
-          email: 'vatsalgoyal77@gmail.com',
-          trustScore: 90,
-        };
-      }
-
-      // Generate & save valid auth token and user
-      const token = 'token_google_' + Date.now();
+      const u = result.user as any;
+      const loggedUser = {
+        id: u.uid,
+        uid: u.uid,
+        name: u.displayName || u.email?.split('@')[0] || 'User',
+        displayName: u.displayName || u.email?.split('@')[0] || 'User',
+        email: u.email,
+        photoURL: u.photoURL,
+        trustScore: 90,
+      };
+      const token = 'firebase_' + Date.now();
       api.setToken(token);
       localStorage.setItem('heritage_user', JSON.stringify(loggedUser));
-
       window.location.href = '/dashboard';
     } catch (err: any) {
-      setError(err.message || 'Google sign-in failed');
+      setError(err.message || 'Google sign-in failed. Make sure pop-ups are allowed.');
       setGoogleLoading(false);
     }
   };
@@ -112,47 +101,60 @@ function LoginForm() {
     setLoading(true);
     try {
       if (isLogin) {
-        // Try backend API login
-        try {
-          const response = await api.login({ email, password });
-          if (response?.user && response?.token) {
-            api.setToken(response.token);
-            localStorage.setItem('heritage_user', JSON.stringify(response.user));
-            window.location.href = '/dashboard';
-            return;
-          }
-        } catch (apiErr: any) {
-          // If login fails (e.g. user not in local database yet), attempt auto-registration
-          try {
-            const regResponse = await api.register({ email, password, name: displayName || email.split('@')[0] });
-            if (regResponse?.user && regResponse?.token) {
-              api.setToken(regResponse.token);
-              localStorage.setItem('heritage_user', JSON.stringify(regResponse.user));
-              window.location.href = '/dashboard';
-              return;
-            }
-          } catch (regErr) {
-            throw apiErr;
-          }
+        // ── LOGIN via Firebase Auth ──
+        const result = await firebaseAuth.login(email, password);
+        if (result.error || !result.user) {
+          throw new Error(result.error || 'Invalid email or password');
         }
+        const u = result.user as any;
+        const loggedUser = {
+          id: u.uid,
+          uid: u.uid,
+          name: u.displayName || email.split('@')[0],
+          displayName: u.displayName || email.split('@')[0],
+          email: u.email,
+          trustScore: 85,
+        };
+        const token = 'firebase_' + Date.now();
+        api.setToken(token);
+        localStorage.setItem('heritage_user', JSON.stringify(loggedUser));
+        window.location.href = '/dashboard';
       } else {
-        // Register Mode
-        try {
-          await firebaseAuth.register(email, password, displayName);
-        } catch (fbErr) {
-          console.log('Firebase register note:', fbErr);
+        // ── REGISTER via Firebase Auth ──
+        const result = await firebaseAuth.register(email, password, displayName);
+        if (result.error || !result.user) {
+          throw new Error(result.error || 'Registration failed');
         }
-
-        const response = await api.register({ email, password, name: displayName || email.split('@')[0] });
-        if (response?.user && response?.token) {
-          api.setToken(response.token);
-          localStorage.setItem('heritage_user', JSON.stringify(response.user));
-          window.location.href = '/dashboard';
-          return;
-        }
+        const u = result.user as any;
+        const newUser = {
+          id: u.uid,
+          uid: u.uid,
+          name: displayName || email.split('@')[0],
+          displayName: displayName || email.split('@')[0],
+          email: u.email,
+          trustScore: 80,
+        };
+        const token = 'firebase_' + Date.now();
+        api.setToken(token);
+        localStorage.setItem('heritage_user', JSON.stringify(newUser));
+        window.location.href = '/dashboard';
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
+      // Map Firebase error codes to friendly messages
+      const msg = err.message || '';
+      if (msg.includes('user-not-found') || msg.includes('wrong-password') || msg.includes('invalid-credential')) {
+        setError('Invalid email or password. Please try again.');
+      } else if (msg.includes('email-already-in-use')) {
+        setError('This email is already registered. Please sign in instead.');
+      } else if (msg.includes('weak-password')) {
+        setError('Password must be at least 6 characters.');
+      } else if (msg.includes('invalid-email')) {
+        setError('Please enter a valid email address.');
+      } else if (msg.includes('not configured')) {
+        setError('Authentication service unavailable. Please contact support.');
+      } else {
+        setError(msg || 'Authentication failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
