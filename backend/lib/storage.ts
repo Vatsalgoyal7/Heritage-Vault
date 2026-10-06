@@ -1,124 +1,157 @@
-import { writeFile, mkdir, readFile, unlink, stat } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-
-const STORAGE_DIR = path.join(process.cwd(), 'public', 'uploads');
-
-// Ensure storage directory exists
-export async function ensureStorageDir() {
-  if (!existsSync(STORAGE_DIR)) {
-    await mkdir(STORAGE_DIR, { recursive: true });
-  }
-}
-
 export interface UploadResult {
   filename: string;
-  path: string;
+  path: string;       // telegram file_id (use this to re-download)
   url: string;
   size: number;
   mimeType: string;
+  telegramFileId?: string;
 }
 
 /**
- * Upload file to local storage
+ * Upload file to Telegram Bot storage (free, up to 50MB per file)
  */
 export async function uploadFile(
   file: File | Buffer,
   options: {
     filename?: string;
     folder?: string;
+    mimeType?: string;
+    originalName?: string;
   } = {}
 ): Promise<UploadResult> {
-  await ensureStorageDir();
+  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+  const TELEGRAM_CHAT_ID = process.env.TELEGRAM_STORAGE_CHAT_ID || '';
 
-  const { filename, folder } = options;
-  
-  // Generate unique filename if not provided
-  const uniqueFilename = filename || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
-  // Create folder path if specified
-  const folderPath = folder ? path.join(STORAGE_DIR, folder) : STORAGE_DIR;
-  if (folder && !existsSync(folderPath)) {
-    await mkdir(folderPath, { recursive: true });
+  if (!TELEGRAM_BOT_TOKEN) {
+    throw new Error('TELEGRAM_BOT_TOKEN is not configured in environment variables.');
+  }
+  if (!TELEGRAM_CHAT_ID) {
+    throw new Error('TELEGRAM_STORAGE_CHAT_ID is not configured in environment variables.');
   }
 
-  const filePath = path.join(folderPath, uniqueFilename);
-  
-  // Convert File to Buffer if needed
-  let buffer: Buffer;
+  // Convert to ArrayBuffer for Blob (avoids SharedArrayBuffer type issue)
+  let arrayBuf: ArrayBuffer;
+  let mimeType: string;
+  let originalName: string;
+
   if (file instanceof File) {
-    const arrayBuffer = await file.arrayBuffer();
-    buffer = Buffer.from(arrayBuffer);
+    arrayBuf = await file.arrayBuffer();
+    mimeType = file.type || options.mimeType || 'application/octet-stream';
+    originalName = options.originalName || file.name || `file_${Date.now()}`;
   } else {
-    buffer = file;
+    // Buffer.slice returns a Buffer with a concrete ArrayBuffer
+    arrayBuf = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength) as ArrayBuffer;
+    mimeType = options.mimeType || 'application/octet-stream';
+    originalName = options.originalName || options.filename || `file_${Date.now()}`;
   }
 
-  // Write file to disk
-  await writeFile(filePath, buffer);
+  const byteLength = arrayBuf.byteLength;
 
-  // Generate URL path
-  const relativePath = folder ? `uploads/${folder}/${uniqueFilename}` : `uploads/${uniqueFilename}`;
-  const url = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/${relativePath}`;
+  // Use native FormData + Blob (available in Next.js 14 / Node 18+)
+  const blob = new Blob([arrayBuf], { type: mimeType });
+
+  const formData = new FormData();
+  formData.append('chat_id', TELEGRAM_CHAT_ID);
+  formData.append('document', blob, originalName);
+  if (options.folder) {
+    formData.append('caption', `📁 ${options.folder} | ${originalName}`);
+  }
+
+  const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`;
+
+  const response = await fetch(telegramApiUrl, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Telegram upload failed (${response.status}): ${err}`);
+  }
+
+  const data = (await response.json()) as any;
+
+  if (!data.ok) {
+    throw new Error(`Telegram API error: ${data.description}`);
+  }
+
+  const fileId: string = data.result?.document?.file_id || '';
+  const fileSize: number = data.result?.document?.file_size || byteLength;
+
+  // Get a fresh download URL (valid ~1 hour; re-fetch via file_id later)
+  let fileUrl = '';
+  try {
+    const pathRes = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getFile?file_id=${fileId}`
+    );
+    const pathData = (await pathRes.json()) as any;
+    if (pathData.ok && pathData.result?.file_path) {
+      fileUrl = `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${pathData.result.file_path}`;
+    }
+  } catch {
+    // file_id is enough to re-download later
+  }
 
   return {
-    filename: uniqueFilename,
-    path: filePath,
-    url,
-    size: buffer.length,
-    mimeType: file instanceof File ? file.type : 'application/octet-stream',
+    filename: originalName,
+    path: fileId,
+    url: fileUrl || `https://t.me/heritagevault_bot`,
+    size: fileSize,
+    mimeType,
+    telegramFileId: fileId,
   };
 }
 
 /**
- * Delete file from local storage
+ * Get a fresh download URL for a Telegram file using its file_id
  */
-export async function deleteFile(filePath: string): Promise<void> {
+export async function getTelegramFileUrl(fileId: string): Promise<string | null> {
+  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+  if (!TELEGRAM_BOT_TOKEN || !fileId) return null;
   try {
-    await unlink(filePath);
-  } catch (error) {
-    console.error('Failed to delete file:', error);
+    const res = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getFile?file_id=${fileId}`
+    );
+    const data = (await res.json()) as any;
+    if (data.ok && data.result?.file_path) {
+      return `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${data.result.file_path}`;
+    }
+  } catch {
+    // ignore
   }
+  return null;
 }
 
 /**
- * Get file info
+ * Validate file type and size (50MB Telegram limit)
  */
-export async function getFileInfo(filePath: string) {
-  try {
-    const stats = await stat(filePath);
-    return {
-      size: stats.size,
-      created: stats.birthtime,
-      modified: stats.mtime,
-    };
-  } catch (error) {
-    console.error('Failed to get file info:', error);
-    return null;
-  }
-}
-
-/**
- * Validate file type and size
- */
-export function validateFile(file: File, maxSizeMB: number = 10): { valid: boolean; error?: string } {
+export function validateFile(
+  file: File,
+  maxSizeMB = 50
+): { valid: boolean; error?: string } {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
-  
-  // Check file size
+
   if (file.size > maxSizeBytes) {
     return { valid: false, error: `File size exceeds ${maxSizeMB}MB limit` };
   }
 
-  // Check file type (basic validation)
   const allowedTypes = [
     'application/pdf',
     'image/jpeg',
     'image/png',
     'image/jpg',
+    'image/gif',
+    'image/webp',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'text/plain',
     'application/zip',
     'application/x-zip-compressed',
+    'video/mp4',
+    'audio/mpeg',
+    'audio/mp4',
   ];
 
   if (!allowedTypes.includes(file.type)) {
@@ -128,11 +161,12 @@ export function validateFile(file: File, maxSizeMB: number = 10): { valid: boole
   return { valid: true };
 }
 
-/**
- * Clean up old files (maintenance function)
- */
-export async function cleanupOldFiles(daysOld: number = 30): Promise<number> {
-  // This would be implemented for scheduled cleanup
-  // For now, return 0 as placeholder
+/** Telegram doesn't support deletion — no-op stub */
+export async function deleteFile(_filePath: string): Promise<void> {
+  console.log('Note: Telegram file deletion not supported via Bot API');
+}
+
+/** Cleanup stub (no-op for Telegram) */
+export async function cleanupOldFiles(_daysOld = 30): Promise<number> {
   return 0;
 }
