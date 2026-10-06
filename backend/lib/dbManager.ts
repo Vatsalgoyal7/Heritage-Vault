@@ -1,13 +1,30 @@
-import fs from 'fs';
-import path from 'path';
 import mongoose from 'mongoose';
 import { connectToDatabase } from './db';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+// On Vercel / serverless: filesystem is read-only — only use JSON fallback in local dev
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+// Lazy-load fs only in local dev to avoid crashes on read-only filesystems
+let fs: typeof import('fs') | null = null;
+let DATA_DIR = '';
+let DB_FILE = '';
+
+if (!IS_SERVERLESS) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    fs = require('fs');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const path = require('path');
+    DATA_DIR = path.join(process.cwd(), 'data');
+    DB_FILE = path.join(DATA_DIR, 'db.json');
+  } catch (e) {
+    // ignore
+  }
+}
 
 // Helper to ensure data directory and file exist
 function ensureJsonDb() {
+  if (!fs) return;
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
@@ -145,6 +162,7 @@ function ensureJsonDb() {
 }
 
 function readJsonDb() {
+  if (!fs || !DB_FILE) return { users: [], vaultItems: [], nominees: [], memoryCapsules: [], auditLogs: [], accessRequests: [] };
   ensureJsonDb();
   try {
     const data = fs.readFileSync(DB_FILE, 'utf8');
@@ -158,6 +176,7 @@ function readJsonDb() {
 }
 
 function writeJsonDb(data: any) {
+  if (!fs || !DB_FILE) return;
   ensureJsonDb();
   fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
 }

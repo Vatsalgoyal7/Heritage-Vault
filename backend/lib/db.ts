@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/heritage-vault';
+const MONGODB_URI = process.env.MONGODB_URI || '';
 
-// For demo mode, we'll allow in-memory storage without MongoDB
-const isDemoMode = true; // Set to true for local demo without MongoDB
+// isDemoMode = true only when no real MONGODB_URI is provided
+const isDemoMode = !MONGODB_URI || MONGODB_URI === 'mongodb://localhost:27017/heritage-vault';
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -21,6 +21,11 @@ if (!global.mongooseCache) {
 }
 
 export async function connectToDatabase() {
+  // If no real MongoDB URI, return null → dbManager falls back to JSON file (local dev only)
+  if (isDemoMode) {
+    return null;
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -34,11 +39,8 @@ export async function connectToDatabase() {
       console.log('MongoDB connected successfully to Heritage Vault DB');
       return m;
     }).catch((error) => {
-      if (isDemoMode) {
-        console.log('Demo mode: MongoDB not connected, using in-memory storage');
-        // In demo mode, we'll return a mock connection
-        return null as any;
-      }
+      console.error('MongoDB connection failed:', error);
+      cached.promise = null;
       throw error;
     });
   }
@@ -47,9 +49,7 @@ export async function connectToDatabase() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    if (!isDemoMode) {
-      throw e;
-    }
+    throw e;
   }
 
   return cached.conn;
