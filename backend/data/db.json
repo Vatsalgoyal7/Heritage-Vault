@@ -1,0 +1,178 @@
+{
+  "users": [
+    {
+      "id": "user_demo_1",
+      "name": "Demo Vault Owner",
+      "displayName": "Demo Vault Owner",
+      "email": "demo@example.com",
+      "passwordHash": "$2a$12$.3itTubO1MAmoEz1joTmSOlS4k7eZucFGFYxq6nDVMqnRdAxbJ00O",
+      "isEmailVerified": true,
+      "trustScore": 85,
+      "createdAt": "2026-10-06T04:26:00.908Z"
+    },
+    {
+      "id": "user_1791261015868",
+      "email": "vatsalgoyal77@hmail.com",
+      "name": "Vatsal",
+      "displayName": "Vatsal",
+      "passwordHash": "$2a$12$8ysMUqX1VoqXMKESeC360eoOFiqytk0umB2nX5GDeOOv/qCrwd7lS",
+      "isEmailVerified": true,
+      "trustScore": 80,
+      "createdAt": "2026-10-06T04:30:15.868Z"
+    }
+  ],
+  "vaultItems": [
+    {
+      "id": "vault_demo_1",
+      "userId": "user_demo_1",
+      "title": "Ancestral Property Deed",
+      "category": "documents",
+      "subCategory": "Real Estate",
+      "ciphertext": "Y1V2eFpIQmhjM1Z5YkhScGIyNHZQR2h2ZFdOb1lXZHBjbVJwYm1jPQ==",
+      "iv": "0123456789abcdef0123456789abcdef",
+      "authTag": "abcdef0123456789abcdef0123456789",
+      "originalFileName": "Property_Deed_2025.pdf",
+      "notes": "Keep confidential - Mumbai Property",
+      "tags": [
+        "property",
+        "legal"
+      ],
+      "assignedNominees": [
+        "nominee_demo_1"
+      ],
+      "createdAt": "2026-10-06T04:26:00.908Z"
+    },
+    {
+      "id": "vault_demo_2",
+      "userId": "user_demo_1",
+      "title": "HDFC NetBanking Credentials",
+      "category": "credentials",
+      "subCategory": "Banking",
+      "ciphertext": "VlZOclUxcEZaM1psYVhSbFkzUnZjazF3WjNocGJtcHpiMjA9",
+      "iv": "fedcba9876543210fedcba9876543210",
+      "authTag": "9876543210fedcba9876543210fedcba",
+      "originalFileName": "bank_pass.txt",
+      "notes": "Primary savings bank account access",
+      "tags": [
+        "banking",
+        "passwords"
+      ],
+      "assignedNominees": [
+        "nominee_demo_1"
+      ],
+      "createdAt": "2026-10-06T04:26:00.908Z"
+    }
+  ],
+  "nominees": [
+    {
+      "id": "nominee_demo_1",
+      "ownerId": "user_demo_1",
+      "name": "Rakesh Kumar",
+      "email": "father@gmail.com",
+      "relation": "Father",
+      "phone": "+91 9876543210",
+      "isVerified": true,
+      "assignedCategories": [
+        "documents",
+        "credentials"
+      ],
+      "accessLevel": "download",
+      "hasEmergencyAccess": false,
+      "createdAt": "2026-10-06T04:26:00.908Z"
+    },
+    {
+      "id": "nominee_demo_2",
+      "ownerId": "user_demo_1",
+      "name": "Sunita Kumar",
+      "email": "mother@gmail.com",
+      "relation": "Mother",
+      "phone": "+91 9876543211",
+      "isVerified": true,
+      "assignedCategories": [
+        "evidence"
+      ],
+      "accessLevel": "view",
+      "hasEmergencyAccess": false,
+      "createdAt": "2026-10-06T04:26:00.908Z"
+    }
+  ],
+  "memoryCapsules": [
+    {
+      "id": "capsule_demo_1",
+      "userId": "user_demo_1",
+      "title": "Personal Message for Family",
+      "type": "letter",
+      "ciphertext": "V0dWc2FXNW5JRzV2ZEdVdFpXNXZkR1ZzSUdaMWJHVjBaVzVqWlM0PQ==",
+      "iv": "00112233445566778899aabbccddeeff",
+      "authTag": "ffeeddccbbaa99887766554433221100",
+      "deliverOn": "on_inactivity_protocol",
+      "recipients": [
+        {
+          "name": "Rakesh Kumar",
+          "email": "father@gmail.com",
+          "relation": "Father"
+        }
+      ],
+      "isDelivered": false,
+      "createdAt": "2026-10-06T04:26:00.908Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "ownerId": "user_1791261015868",
+      "action": "USER_LOGIN",
+      "performedBy": "Vatsal",
+      "performedById": "user_1791261015868",
+      "details": "User logged in from web client. Session token dispatched.",
+      "status": "Secured",
+      "id": "audit_1791262342485",
+      "timestamp": "2026-10-06T04:52:22.485Z"
+    },
+    {
+      "ownerId": "user_1791261015868",
+      "action": "USER_REGISTERED",
+      "performedBy": "Vatsal",
+      "performedById": "user_1791261015868",
+      "details": "New account created for vatsalgoyal77@hmail.com with AES-256 legacy vault.",
+      "status": "Secured",
+      "id": "audit_1791261015869",
+      "timestamp": "2026-10-06T04:30:15.869Z"
+    },
+    {
+      "id": "audit_demo_1",
+      "ownerId": "user_demo_1",
+      "action": "USER_REGISTERED",
+      "performedBy": "user",
+      "performedById": "user_demo_1",
+      "details": "Account created with AES-256 vault protection.",
+      "ip": "127.0.0.1",
+      "status": "Secured",
+      "timestamp": "2026-10-06T04:26:00.908Z"
+    },
+    {
+      "id": "audit_demo_2",
+      "ownerId": "user_demo_1",
+      "action": "NOMINEE_VERIFIED",
+      "performedBy": "Rakesh Kumar (Father)",
+      "performedById": "nominee_demo_1",
+      "details": "Nominee confirmed email address via OTP.",
+      "ip": "127.0.0.1",
+      "status": "Verified",
+      "timestamp": "2026-10-06T04:26:00.908Z"
+    }
+  ],
+  "accessRequests": [
+    {
+      "id": "request_demo_1",
+      "nomineeId": "nominee_demo_1",
+      "ownerId": "user_demo_1",
+      "nomineeName": "Rakesh Kumar",
+      "email": "father@gmail.com",
+      "relation": "Father",
+      "reason": "Sudden hospital admission. Requires access to health insurance and property deeds.",
+      "status": "pending",
+      "requestedAt": "2026-10-06T04:26:00.908Z",
+      "expiresAt": "24 Hours after approval"
+    }
+  ]
+}

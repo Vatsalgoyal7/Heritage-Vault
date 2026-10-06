@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+/* Dark Theme (Default - Cracker Cyber Security SaaS Theme) */
+:root {
+  --bg-primary: #020408;
+  --bg-card: #090e1a;
+  --bg-secondary: #0f172a;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --accent-neon: #22c55e;
+  --accent-purple: #a855f7;
+  --accent-rose: #f43f5e;
+  --accent-amber: #f59e0b;
+  --border-color: rgba(34, 197, 94, 0.2);
+  --glass-bg: rgba(9, 14, 26, 0.85);
+}
+
+/* ── THEME: CYBER (default – Cracker dark) ── */
+[data-theme="cyber"] {
+  --bg-primary: #020408;
+  --bg-card: #090e1a;
+  --bg-secondary: #0f172a;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent: #10b981;
+  --accent2: #06b6d4;
+  --border-color: rgba(34, 197, 94, 0.2);
+  --glass-bg: rgba(9, 14, 26, 0.85);
+  --nav-bg: rgba(2, 4, 8, 0.9);
+  --input-bg: #050b14;
+}
+
+/* ── THEME: WITCH MODE (🔮 Mystical Deep Violet, Glowing Magenta & Gold) ── */
+[data-theme="witch"] {
+  --bg-primary: #09040e;
+  --bg-card: #13091f;
+  --bg-secondary: #1d0e30;
+  --text-primary: #f5f3ff;
+  --text-secondary: #d8b4fe;
+  --accent: #c084fc;
+  --accent2: #fbbf24;
+  --border-color: rgba(192, 132, 252, 0.3);
+  --glass-bg: rgba(19, 9, 31, 0.88);
+  --nav-bg: rgba(9, 4, 14, 0.94);
+  --input-bg: #0e0618;
+}
+
+/* ── THEME: MATRIX HACKER (💻 Deep Green Terminal Glow) ── */
+[data-theme="matrix"] {
+  --bg-primary: #020a04;
+  --bg-card: #05180a;
+  --bg-secondary: #092610;
+  --text-primary: #86efac;
+  --text-secondary: #4ade80;
+  --accent: #22c55e;
+  --accent2: #a3e635;
+  --border-color: rgba(34, 197, 94, 0.35);
+  --glass-bg: rgba(5, 24, 10, 0.9);
+  --nav-bg: rgba(2, 10, 4, 0.94);
+  --input-bg: #030f06;
+}
+
+/* ── THEME: LIGHT ── */
+[data-theme="light"] {
+  --bg-primary: #f0f4f8;
+  --bg-card: #ffffff;
+  --bg-secondary: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent: #059669;
+  --accent2: #0284c7;
+  --border-color: rgba(5, 150, 105, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --nav-bg: rgba(240, 244, 248, 0.95);
+  --input-bg: #f8fafc;
+}
+
+
+
+body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Utility classes driven by CSS variables */
+.theme-bg {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+.theme-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+.theme-secondary {
+  background-color: var(--bg-secondary) !important;
+}
+.theme-text {
+  color: var(--text-primary) !important;
+}
+.theme-text-muted {
+  color: var(--text-secondary) !important;
+}
+.theme-accent {
+  color: var(--accent) !important;
+}
+.theme-border {
+  border-color: var(--border-color) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(34, 197, 94, 0.05);
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.7), 0 0 25px -2px rgba(34, 197, 94, 0.12);
+}
+
+.glass-panel-glow {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 35px rgba(34, 197, 94, 0.15);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-neon) 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-border {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--bg-card), var(--bg-card)), linear-gradient(135deg, var(--accent-neon), var(--accent-cyan));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.grid-bg {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(34, 197, 94, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 197, 94, 0.04) 1px, transparent 1px);
+}
+
+.light .grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+}
+
+/* Cyber Security Terminal Accent Glow */
+.cyber-badge {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.15);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.03); }
+}
+
+.animate-pulse-slow {
+  animation: pulseGlow 6s infinite ease-in-out;
+}

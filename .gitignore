@@ -1,0 +1,29 @@
+# Node & Dependencies
+node_modules/
+backend/node_modules/
+mobile/node_modules/
+
+# Next.js & Build Outputs
+.next/
+backend/.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+backend/tsconfig.tsbuildinfo
+
+# Environment & Local Secrets
+.env
+.env.local
+.env*.local
+backend/.env.local
+
+# Mobile & Expo
+.expo/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
