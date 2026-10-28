@@ -17,20 +17,20 @@ import {
 
 export default function AddonsPage() {
   return (
-    <div className="min-h-screen bg-[#020408] text-slate-100 grid-bg flex flex-col">
+    <div className="min-h-screen grid-bg flex flex-col transition-colors duration-300" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <PublicNavbar />
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-6 md:p-12 space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold border" style={{ background: 'var(--bg-secondary)', color: 'var(--accent)', borderColor: 'var(--border-color)' }}>
             HERITAGE EXTENSIONS
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white font-['Outfit']">
+          <h1 className="text-4xl md:text-6xl font-extrabold font-['Outfit']" style={{ color: 'var(--text-primary)' }}>
             Premium Cyber Add-ons
           </h1>
-          <p className="text-slate-400 text-sm md:text-base">
+          <p className="text-sm md:text-base" style={{ color: 'var(--text-secondary)' }}>
             Extend your vault inheritance capabilities with AI legal drafting, notary verification, and biometric security suites.
           </p>
         </div>
@@ -58,36 +58,40 @@ export default function AddonsPage() {
             },
             {
               icon: Zap,
-              title: 'Instant Emergency Override',
-              description: 'Urgent 24-hour nominee access authorization with real-time OTP notification dispatch.',
-              status: 'Included in Vault',
-            },
-            {
-              icon: Star,
-              title: 'Family Memorial Suite',
-              description: 'Curate digital memory capsules, video messages, and family audio archives for future generations.',
+              title: 'Emergency Crisis Override',
+              description: 'Instant time-locked emergency access workflow for verified family nominees during medical emergencies.',
               status: 'Included in Vault',
             },
             {
               icon: LockKeyhole,
-              title: 'Biometric Master Key',
-              description: 'WebAuthn hardware key and biometric fingerprint verification for master vault unlock.',
+              title: 'Hardware Token Sync',
+              description: 'Support for YubiKey and WebAuthn hardware security keys for zero-knowledge vault unlock.',
               status: 'Add-on Module',
             },
-          ].map((addon, idx) => (
-            <div key={idx} className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-4 hover:border-emerald-500/40 transition-all">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold">
-                  <addon.icon className="w-6 h-6" />
+            {
+              icon: Star,
+              title: 'Personal Concierge Support',
+              description: 'Dedicated estate planning specialist assistance for setting up complex digital inheritance vaults.',
+              status: 'Executive Plan',
+            },
+          ].map((addon) => {
+            const Icon = addon.icon;
+            return (
+              <div key={addon.title} className="p-6 rounded-3xl border space-y-4 shadow-xl flex flex-col justify-between" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl border flex items-center justify-center font-bold" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--accent)' }}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-xl font-['Outfit']" style={{ color: 'var(--text-primary)' }}>{addon.title}</h3>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{addon.description}</p>
                 </div>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase font-mono">
-                  {addon.status}
-                </span>
+                <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
+                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider" style={{ color: 'var(--accent)' }}>{addon.status}</span>
+                  <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                </div>
               </div>
-              <h3 className="font-bold text-xl text-white font-['Outfit']">{addon.title}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">{addon.description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>

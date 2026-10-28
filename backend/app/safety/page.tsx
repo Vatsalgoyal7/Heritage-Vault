@@ -18,20 +18,20 @@ export default function SafetyPage() {
   const [simulatedDay, setSimulatedDay] = useState(12);
 
   return (
-    <div className="min-h-screen bg-[#020408] text-slate-100 grid-bg flex flex-col">
+    <div className="min-h-screen grid-bg flex flex-col transition-colors duration-300" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <PublicNavbar />
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-6 md:p-12 space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold border" style={{ background: 'var(--bg-secondary)', color: 'var(--accent2)', borderColor: 'var(--border-color)' }}>
             AUTOMATED DEAD-MAN SWITCH PROTOCOL
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white font-['Outfit']">
+          <h1 className="text-4xl md:text-6xl font-extrabold font-['Outfit']" style={{ color: 'var(--text-primary)' }}>
             90-Day Inactivity Safety Protocol
           </h1>
-          <p className="text-slate-400 text-sm md:text-base">
+          <p className="text-sm md:text-base" style={{ color: 'var(--text-secondary)' }}>
             Protects your digital legacy by automatically transferring assigned vault categories to designated family members if you become inactive.
           </p>
         </div>
@@ -59,33 +59,24 @@ export default function SafetyPage() {
             },
             {
               day: 'Day 60',
-              title: 'Level 3 Final Emergency Warning',
-              desc: 'Urgent notification sent to owner and designated primary executor.',
+              title: 'Level 3 Crisis Pre-Alert',
+              desc: 'Pre-alert notification sent to verified nominees to prepare for release protocol.',
               color: 'amber',
             },
             {
               day: 'Day 90',
-              title: 'Protocol Release Triggered',
-              desc: 'Inactivity protocol activates. Verified nominees receive OTP access to assigned vault categories.',
+              title: 'Estate Release Trigger',
+              desc: 'Final safety switch releases encrypted assets to designated nominees.',
               color: 'rose',
             },
-          ].map((stage, idx) => (
-            <div key={idx} className="glass-panel p-6 rounded-2xl border border-slate-800 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[#050b14] border border-slate-800 text-amber-400 font-mono font-bold text-xs flex items-center justify-center">
-                  {idx + 1}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-white text-base font-['Outfit']">{stage.title}</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#050b14] text-slate-300 border border-slate-800">
-                      {stage.day}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400">{stage.desc}</p>
-                </div>
+          ].map((s) => (
+            <div key={s.day} className="p-6 rounded-2xl border flex items-center justify-between gap-4 shadow-lg" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+              <div>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: 'var(--accent)' }}>{s.day}</span>
+                <h3 className="text-lg font-bold font-['Outfit'] mt-1" style={{ color: 'var(--text-primary)' }}>{s.title}</h3>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{s.desc}</p>
               </div>
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 hidden sm:block" />
+              <CheckCircle2 className="w-6 h-6 flex-shrink-0" style={{ color: 'var(--accent)' }} />
             </div>
           ))}
         </div>

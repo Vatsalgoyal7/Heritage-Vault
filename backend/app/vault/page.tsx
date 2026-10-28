@@ -26,11 +26,92 @@ const CATEGORIES = [
   { key: 'all', label: 'All Vault Items', icon: FolderLock },
   { key: 'documents', label: 'Documents (Property/Bank)', icon: FileText },
   { key: 'credentials', label: 'Credentials & Passwords', icon: KeyRound },
-  { key: 'links_accounts', label: 'Links & Social Accounts', icon: Globe },
+  { key: 'links_accounts', label: 'Telegram & Social Accounts', icon: Globe },
   { key: 'business', label: 'Business & Legal Docs', icon: Briefcase },
   { key: 'intellectual_property', label: 'IP & Source Code', icon: Lock },
   { key: 'cloud_storage', label: 'Cloud Storage Links', icon: Cloud },
   { key: 'evidence', label: 'Evidence & Photo Archives', icon: ShieldCheck },
+];
+
+const DEMO_VAULT_ITEMS = [
+  {
+    id: 'demo_vault_1',
+    title: 'Family Ancestral Property Certificate',
+    category: 'documents',
+    encryptedContent: '[AES-256-GCM ENCRYPTED]',
+    content: 'Plot No 14, Survey No 402/12, Sector 22, Noida, UP — Registration Certificate ID: REG-2024-UP-9982 — Registered in name: Vatsal Goyal — Area: 250 sq yards — Stamp Duty Paid: ₹7,500',
+    notes: 'Original certificate stored in SBI locker #4, Branch: Sector 18 Noida',
+    tags: ['property', 'deed', 'registration'],
+    createdAt: new Date('2026-01-10').toISOString(),
+    updatedAt: new Date('2026-01-10').toISOString(),
+    userId: 'demo',
+    isFile: false,
+  },
+  {
+    id: 'demo_vault_2',
+    title: 'HDFC NetBanking & FD Credentials',
+    category: 'credentials',
+    encryptedContent: '[AES-256-GCM ENCRYPTED]',
+    content: 'HDFC Bank Account: 5020xxxx1234 — NetBanking ID: vatsal_goyal_h — MPIN: 4892 — FD Amount: ₹12,50,000 @ 7.1% — Maturity: 2028-03-15',
+    notes: 'Linked to rajesh.goyal@gmail.com for nominee claim',
+    tags: ['bank', 'hdfc', 'fd', 'credentials'],
+    createdAt: new Date('2026-02-05').toISOString(),
+    updatedAt: new Date('2026-02-05').toISOString(),
+    userId: 'demo',
+    isFile: false,
+  },
+  {
+    id: 'demo_vault_3',
+    title: 'Telegram & Google Account Backup',
+    category: 'links_accounts',
+    encryptedContent: '[AES-256-GCM ENCRYPTED]',
+    content: 'Telegram: @vatsal_g7 — Session backup phrase: [12-word seed] — Google Account: vatsal.goyal7@gmail.com — Recovery code: HJKL-2938-XXZZ-4512',
+    notes: 'Backup codes stored. Enable 2FA disabled before nominee access.',
+    tags: ['telegram', 'google', 'social'],
+    createdAt: new Date('2026-03-12').toISOString(),
+    updatedAt: new Date('2026-03-12').toISOString(),
+    userId: 'demo',
+    isFile: false,
+  },
+  {
+    id: 'demo_vault_4',
+    title: 'LIC Policy & Health Insurance',
+    category: 'business',
+    encryptedContent: '[AES-256-GCM ENCRYPTED]',
+    content: 'LIC Policy No: 123456789 — Sum Assured: ₹50,00,000 — Nominee: Rajesh Kumar Goyal — Health Policy: HDFC ERGO Premium Plan — Policy ID: HDFC-HEALTH-991823 — Premium Due: March 2027',
+    notes: 'Agent contact: Mr. Anil Saxena +91 98765 11223',
+    tags: ['lic', 'insurance', 'health', 'policy'],
+    createdAt: new Date('2026-04-18').toISOString(),
+    updatedAt: new Date('2026-04-18').toISOString(),
+    userId: 'demo',
+    isFile: false,
+  },
+  {
+    id: 'demo_vault_5',
+    title: 'Heritage Vault GitHub & Source Code',
+    category: 'intellectual_property',
+    encryptedContent: '[AES-256-GCM ENCRYPTED]',
+    content: 'GitHub: github.com/Vatsalgoyal7 — PAT Token: ghp_xxxx... — Heritage Vault Repo: /heritage-vault (private) — NPM Account: vatsal_npm — Vercel API Key: ver_xxxx...',
+    notes: 'All IP rights transfer to Priya Goyal upon estate release',
+    tags: ['github', 'code', 'npm', 'vercel'],
+    createdAt: new Date('2026-05-20').toISOString(),
+    updatedAt: new Date('2026-05-20').toISOString(),
+    userId: 'demo',
+    isFile: false,
+  },
+  {
+    id: 'demo_vault_6',
+    title: 'Family Photo Archive & Evidence',
+    category: 'evidence',
+    encryptedContent: '[AES-256-GCM ENCRYPTED]',
+    content: 'Google Drive Folder: drive.google.com/drive/folders/1BxK... (120 GB) — iCloud: Family_Memories_2020-2026 Album — Local backup: Seagate 2TB HDD — Location: Home safe, almirah top shelf',
+    notes: 'Password for drive folder sent to all nominees via OTP upon release',
+    tags: ['photos', 'memories', 'evidence', 'backup'],
+    createdAt: new Date('2026-06-30').toISOString(),
+    updatedAt: new Date('2026-06-30').toISOString(),
+    userId: 'demo',
+    isFile: false,
+  },
 ];
 
 export default function VaultPage() {
@@ -63,9 +144,21 @@ export default function VaultPage() {
       setLoading(true);
       setError(null);
       const response = await api.getVaultItems(selectedCat === 'all' ? undefined : selectedCat);
-      setItems(response.items || []);
+      const fetched = response.items || [];
+      if (fetched.length > 0) {
+        setItems(fetched);
+      } else {
+        // Filter demo items by category
+        const filtered = selectedCat === 'all'
+          ? DEMO_VAULT_ITEMS
+          : DEMO_VAULT_ITEMS.filter(i => i.category === selectedCat);
+        setItems(filtered);
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to load vault items');
+      const filtered = selectedCat === 'all'
+        ? DEMO_VAULT_ITEMS
+        : DEMO_VAULT_ITEMS.filter(i => i.category === selectedCat);
+      setItems(filtered);
     } finally {
       setLoading(false);
     }
@@ -80,6 +173,17 @@ export default function VaultPage() {
       const nextMap = { ...decryptedMap };
       delete nextMap[itemId];
       setDecryptedMap(nextMap);
+      return;
+    }
+
+    // Demo items: decrypt instantly from local data
+    const demoItem = DEMO_VAULT_ITEMS.find(i => i.id === itemId);
+    if (demoItem) {
+      setDecryptingId(itemId);
+      setTimeout(() => {
+        setDecryptedMap({ ...decryptedMap, [itemId]: demoItem.content });
+        setDecryptingId(null);
+      }, 800);
       return;
     }
 
@@ -183,6 +287,12 @@ export default function VaultPage() {
         <Sidebar />
 
         <main className="flex-1 p-4 md:p-8 space-y-6 max-w-7xl">
+          {/* Demo Mode Banner */}
+          <div className="px-4 py-2.5 rounded-xl border flex items-center gap-2 text-xs font-semibold" style={{ background: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)', color: 'var(--accent)' }}>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            🎯 Demo Mode Active — 6 Encrypted Assets Loaded · Click "Decrypt" to reveal demo secrets
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>

@@ -2,8 +2,38 @@
 
 import React, { useState, useEffect } from 'react';
 import { Navbar, Sidebar } from '../components/Navbar';
-import { Heart, Mail, Mic, Video, Plus, Clock, CheckCircle2, Lock, Loader2 } from 'lucide-react';
+import { Heart, Mail, Mic, Video, Plus, Clock, CheckCircle2, Lock, Loader2, Zap } from 'lucide-react';
 import { api } from '@/lib/api';
+
+const DEMO_CAPSULES = [
+  {
+    id: 'demo_capsule_1',
+    title: 'A Letter to My Family',
+    type: 'letter',
+    recipient: 'rajesh.goyal@gmail.com, sunita.goyal@gmail.com',
+    message: 'Dear Papa and Maa,\n\nIf you are reading this, I want you to know how much I love you both. The property documents in the vault — Plot No. 14 in Sector 22 — please handle them carefully. The bank account details and LIC policies are all stored safely. Please consult Advocate Sharma in Noida before taking any legal step.\n\nYour son,\nVatsal',
+    deliverOn: 'on_inactivity_protocol',
+    createdAt: new Date('2026-05-01').toISOString(),
+  },
+  {
+    id: 'demo_capsule_2',
+    title: 'Happy 25th Birthday Message',
+    type: 'letter',
+    recipient: 'priya.goyal@gmail.com',
+    message: 'Priya,\n\nBy the time you read this, you will have turned 25. You were always the smartest one in our family. In the vault, I have kept all my project source codes and intellectual property documents — they belong to you. Build something great with them.\n\nWith love,\nBhaiya',
+    deliverOn: 'on_inactivity_protocol',
+    createdAt: new Date('2026-06-15').toISOString(),
+  },
+  {
+    id: 'demo_capsule_3',
+    title: 'Life Advice & Final Words',
+    type: 'letter',
+    recipient: 'All Nominees',
+    message: 'To everyone I love,\n\nKeep the family together. The digital assets in Heritage Vault — the credentials, cloud accounts, and business documents — are yours to share and manage wisely. Do not rush decisions. Contact my legal executor Adv. R.K. Mehta (+91 98100 00001) for probate proceedings.\n\nAlways yours.',
+    deliverOn: 'on_inactivity_protocol',
+    createdAt: new Date('2026-07-20').toISOString(),
+  },
+];
 
 export default function MemoryCapsulePage() {
   const [type, setType] = useState<'letter' | 'audio' | 'video'>('letter');
@@ -27,9 +57,10 @@ export default function MemoryCapsulePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setCapsules(data.capsules || []);
+      const fetched = data.capsules || [];
+      setCapsules(fetched.length > 0 ? fetched : DEMO_CAPSULES);
     } catch (err: any) {
-      setError(err.message || 'Failed to load memory capsules');
+      setCapsules(DEMO_CAPSULES);
     } finally {
       setLoading(false);
     }
@@ -70,34 +101,41 @@ export default function MemoryCapsulePage() {
       setRecipient('');
       setMessage('');
     } catch (err: any) {
-      alert(err.message || 'Failed to seal memory capsule');
+      alert(err.message || 'Failed to create memory capsule');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#020408] text-slate-100 flex flex-col grid-bg">
+    <div className="min-h-screen flex flex-col grid-bg transition-colors duration-300" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <Navbar />
 
       <div className="flex-1 flex">
         <Sidebar />
 
-        <main className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl">
+        <main className="flex-1 p-4 md:p-8 space-y-6 max-w-7xl">
+          {/* Demo Mode Banner */}
+          <div className="px-4 py-2.5 rounded-xl border flex items-center gap-2 text-xs font-semibold" style={{ background: 'rgba(244,63,94,0.08)', borderColor: 'rgba(244,63,94,0.3)', color: '#f43f5e' }}>
+            <Zap className="w-3.5 h-3.5" />
+            🎯 Demo Mode Active — 3 Personal Memory Capsules Loaded · Locked Until 90-Day Trigger
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white font-['Outfit'] flex items-center gap-2">
+              <h1 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                 <Heart className="w-6 h-6 text-rose-400" />
-                Emotional Memory Capsules
+                Personal Memory Capsules
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
-                Record personal future letters, voice messages, or video capsules delivered to loved ones on custom dates or upon safety release.
+              <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                Time-locked personal letters, audio recordings, and videos delivered to loved ones upon estate release.
               </p>
             </div>
 
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-4 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2 transition-all"
+              className="px-4 py-2.5 font-bold text-xs rounded-xl shadow-lg border flex items-center justify-center gap-2 transition-all hover:brightness-110"
+              style={{ background: 'var(--accent)', color: 'var(--bg-primary)' }}
             >
               <Plus className="w-4 h-4" />
               <span>Create Memory Capsule</span>
@@ -106,48 +144,39 @@ export default function MemoryCapsulePage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-rose-400 animate-spin" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--accent)' }} />
             </div>
           ) : error ? (
-            <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 text-rose-400 text-xs">
+            <div className="p-4 rounded-xl border text-xs" style={{ background: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }}>
               {error}
             </div>
           ) : capsules.length === 0 ? (
-            <div className="bg-[#090e1a] border border-slate-800 rounded-2xl p-8 text-center">
-              <Heart className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400 text-xs">No memory capsules created yet. Write a personal letter for your family.</p>
+            <div className="p-8 rounded-2xl border text-center shadow-lg" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+              <Heart className="w-12 h-12 text-rose-400 mx-auto mb-3" />
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>No memory capsules created yet. Record personal notes for loved ones.</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
               {capsules.map((c) => (
-                <div key={c.id} className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 hover:border-rose-500/40 transition-all">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center justify-center font-bold">
-                        {c.type === 'letter' && <Mail className="w-5 h-5" />}
-                        {c.type === 'audio' && <Mic className="w-5 h-5" />}
-                        {c.type === 'video' && <Video className="w-5 h-5" />}
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white text-base font-['Outfit']">{c.title}</h3>
-                        <p className="text-xs text-slate-400">Recipient: {c.recipient || 'Family'}</p>
-                      </div>
+                <div key={c.id} className="p-6 rounded-2xl border space-y-4 shadow-lg transition-all" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                  <div className="flex items-start justify-between border-b pb-3" style={{ borderColor: 'var(--border-color)' }}>
+                    <div>
+                      <h3 className="font-bold text-base font-['Outfit']" style={{ color: 'var(--text-primary)' }}>{c.title}</h3>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>Recipient: {c.recipient || 'Designated Nominees'}</p>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold rounded-full flex items-center gap-1">
-                      <Lock className="w-3 h-3" /> {c.status || 'Sealed & Encrypted'}
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-bold border uppercase" style={{ background: 'var(--bg-secondary)', color: 'var(--accent)', borderColor: 'var(--border-color)' }}>
+                      {c.type}
                     </span>
                   </div>
 
-                  <div className="bg-[#030712] p-3.5 rounded-xl border border-slate-900 font-mono text-xs text-slate-400 space-y-1">
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
-                      🔒 Sealed Capsule Message Payload:
-                    </span>
-                    <p className="truncate text-slate-500">AES256_GCM_CAPSULE_PAYLOAD::[SEALED_UNTIL_RELEASE]</p>
+                  <div className="p-3.5 rounded-xl border font-mono text-xs space-y-1 shadow-inner" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--accent)' }}>🔒 Time-Locked Letter:</span>
+                    <p className="whitespace-pre-wrap leading-relaxed">{c.message}</p>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-800/80">
-                    <span className="text-[11px] text-emerald-400 font-medium">Release Condition: On Safety Release</span>
-                    <span className="text-[10px] text-slate-500 font-mono">Sealed: {new Date(c.createdAt).toLocaleDateString()}</span>
+                  <div className="flex items-center justify-between text-xs pt-1 border-t" style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
+                    <span className="text-[11px] font-semibold" style={{ color: 'var(--accent)' }}>Deliver On: 90-Day Release</span>
+                    <span className="text-[10px] font-mono">Created: {new Date(c.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}
@@ -157,71 +186,45 @@ export default function MemoryCapsulePage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel-glow max-w-md w-full p-6 rounded-3xl border border-rose-500/40 space-y-4">
-            <h3 className="text-xl font-bold text-white font-['Outfit']">Seal Memory Capsule</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="max-w-md w-full p-6 rounded-3xl border space-y-4 shadow-2xl" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+            <h3 className="text-xl font-bold font-['Outfit']" style={{ color: 'var(--text-primary)' }}>Create Personal Memory Capsule</h3>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Capsule Title</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Capsule Title</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Letter for my Daughter's 18th Birthday"
+                  placeholder="e.g. Letter to My Son on 25th Birthday"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-[#050b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  className="w-full rounded-xl px-4 py-2.5 text-xs border outline-none"
+                  style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Recipient Name / Role</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Recipient Name / Email</label>
                 <input
                   type="text"
-                  required
-                  placeholder="Ananya Sharma (Daughter)"
+                  placeholder="e.g. father@gmail.com"
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
-                  className="w-full bg-[#050b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  className="w-full rounded-xl px-4 py-2.5 text-xs border outline-none"
+                  style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Capsule Format</label>
-                <div className="flex gap-2">
-                  {[
-                    { id: 'letter', label: 'Letter / Text', icon: Mail },
-                    { id: 'audio', label: 'Voice Note', icon: Mic },
-                    { id: 'video', label: 'Video Note', icon: Video },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <button
-                        type="button"
-                        key={item.id}
-                        onClick={() => setType(item.id as any)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition-all ${
-                          type === item.id
-                            ? 'bg-rose-500 text-slate-950 border-rose-500 font-bold'
-                            : 'bg-[#050b14] text-slate-400 border-slate-800'
-                        }`}
-                      >
-                        <Icon className="w-3.5 h-3.5" />
-                        <span>{item.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Encrypted Message Body</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Personal Message / Letter</label>
                 <textarea
                   required
                   rows={4}
-                  placeholder="Write your private message or life advise here..."
+                  placeholder="Write your personal message, advice, or private memories..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full bg-[#050b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  className="w-full rounded-xl px-4 py-2.5 text-xs border outline-none"
+                  style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
 
@@ -229,16 +232,18 @@ export default function MemoryCapsulePage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 bg-slate-900 text-slate-300 rounded-xl font-bold text-xs"
+                  className="flex-1 py-2.5 rounded-xl font-bold text-xs border"
+                  style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
+                  style={{ background: 'var(--accent)', color: 'var(--bg-primary)' }}
                 >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Seal Capsule'}
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save & Lock Capsule'}
                 </button>
               </div>
             </form>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="152" height="152" viewBox="0 0 152 152">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a1a"/>
+      <stop offset="100%" style="stop-color:#1a0a2e"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="60%" style="stop-color:#9d5cf5"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3.04" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="152" height="152" rx="22.8" ry="22.8" fill="url(#bg)"/>
+  <!-- Shield -->
+  <path d="
+    M 76 27.36
+    L 118.56 45.6
+    L 118.56 79.04
+    Q 118.56 124.63999999999999 76 133.76
+    Q 33.44 124.63999999999999 33.44 79.04
+    L 33.44 45.6
+    Z
+  " fill="url(#shield)" filter="url(#glow)"/>
+  <!-- Lock body -->
+  <rect x="57.76" y="69.92" width="36.48" height="33.44" rx="6.08" ry="6.08" fill="white" opacity="0.95"/>
+  <!-- Lock shackle -->
+  <path d="M 60.800000000000004 69.92 Q 60.800000000000004 45.6 76 45.6 Q 91.2 45.6 91.2 69.92" 
+        fill="none" stroke="white" stroke-width="7.6000000000000005" stroke-linecap="round" opacity="0.95"/>
+  <!-- Keyhole -->
+  <circle cx="76" cy="81.32000000000001" r="6.08" fill="url(#bg)" opacity="0.8"/>
+  <rect x="73.72" y="81.32000000000001" width="4.56" height="10.64" rx="1.52" fill="url(#bg)" opacity="0.8"/>
+</svg>

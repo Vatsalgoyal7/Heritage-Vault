@@ -2,8 +2,32 @@
 
 import React, { useState, useEffect } from 'react';
 import { Navbar, Sidebar } from '../components/Navbar';
-import { AlertTriangle, Clock, CheckCircle2, XCircle, ShieldCheck, Mail, ArrowRight, Loader2, Plus } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle2, XCircle, ShieldCheck, Mail, ArrowRight, Loader2, Plus, Zap } from 'lucide-react';
 import { api } from '@/lib/api';
+
+const DEMO_EMERGENCY_REQUESTS = [
+  {
+    id: 'demo_emergency_1',
+    requestedBy: 'rajesh.goyal@gmail.com',
+    reason: 'Medical emergency — Father hospitalized at Fortis Hospital, Noida. Urgent access to property deed and health insurance policy required for admission procedures.',
+    status: 'PENDING',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'demo_emergency_2',
+    requestedBy: 'priya.goyal@gmail.com',
+    reason: 'Required source code repository access and IP documents for ongoing legal proceedings related to patent filing.',
+    status: 'APPROVED',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'demo_emergency_3',
+    requestedBy: 'sunita.goyal@gmail.com',
+    reason: 'Inactivity Safety Protocol Day 90 triggered — requesting full document vault access as designated primary nominee.',
+    status: 'PENDING',
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+  },
+];
 
 export default function EmergencyPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -24,9 +48,10 @@ export default function EmergencyPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setRequests(data.requests || []);
+      const fetched = data.requests || [];
+      setRequests(fetched.length > 0 ? fetched : DEMO_EMERGENCY_REQUESTS);
     } catch (err: any) {
-      setError(err.message || 'Failed to load emergency access requests');
+      setRequests(DEMO_EMERGENCY_REQUESTS);
     } finally {
       setLoading(false);
     }
@@ -94,6 +119,12 @@ export default function EmergencyPage() {
         <Sidebar />
 
         <main className="flex-1 p-4 md:p-8 space-y-6 max-w-7xl">
+          {/* Demo Mode Banner */}
+          <div className="px-4 py-2.5 rounded-xl border flex items-center gap-2 text-xs font-semibold" style={{ background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.3)', color: 'var(--accent2)' }}>
+            <Zap className="w-3.5 h-3.5" />
+            🎯 Demo Mode Active — 3 Emergency Requests Simulated · 1 Approved, 2 Pending
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>

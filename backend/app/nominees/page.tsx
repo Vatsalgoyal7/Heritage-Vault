@@ -3,7 +3,43 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Sidebar } from '../components/Navbar';
 import { api, Nominee } from '@/lib/api';
-import { Users, Plus, CheckCircle2, Clock, Mail, ShieldCheck, UserCheck, Trash2, KeyRound, Loader2 } from 'lucide-react';
+import { Users, Plus, CheckCircle2, Clock, Mail, ShieldCheck, UserCheck, Trash2, KeyRound, Loader2, Zap } from 'lucide-react';
+
+const DEMO_NOMINEES: Nominee[] = [
+  {
+    id: 'demo_nominee_1',
+    name: 'Rajesh Kumar Goyal',
+    email: 'rajesh.goyal@gmail.com',
+    relation: 'Father',
+    phone: '+91 98765 43210',
+    accessLevel: 'download',
+    assignedCategories: ['documents', 'credentials', 'business'],
+    createdAt: new Date('2026-03-15').toISOString(),
+    userId: 'demo',
+  },
+  {
+    id: 'demo_nominee_2',
+    name: 'Sunita Goyal',
+    email: 'sunita.goyal@gmail.com',
+    relation: 'Mother',
+    phone: '+91 91234 56789',
+    accessLevel: 'download',
+    assignedCategories: ['documents', 'evidence'],
+    createdAt: new Date('2026-03-15').toISOString(),
+    userId: 'demo',
+  },
+  {
+    id: 'demo_nominee_3',
+    name: 'Priya Goyal',
+    email: 'priya.goyal@gmail.com',
+    relation: 'Sister',
+    phone: '+91 99887 76655',
+    accessLevel: 'view',
+    assignedCategories: ['intellectual_property', 'cloud_storage'],
+    createdAt: new Date('2026-04-10').toISOString(),
+    userId: 'demo',
+  },
+];
 
 export default function NomineesPage() {
   const [nominees, setNominees] = useState<Nominee[]>([]);
@@ -23,9 +59,12 @@ export default function NomineesPage() {
       setLoading(true);
       setError(null);
       const res = await api.getNominees();
-      setNominees(res.nominees || []);
+      const fetched = res.nominees || [];
+      // Use demo data if no real data exists
+      setNominees(fetched.length > 0 ? fetched : DEMO_NOMINEES);
     } catch (err: any) {
-      setError(err.message || 'Failed to load nominees');
+      // Fallback to demo data on error
+      setNominees(DEMO_NOMINEES);
     } finally {
       setLoading(false);
     }
@@ -80,11 +119,17 @@ export default function NomineesPage() {
         <Sidebar />
 
         <main className="flex-1 p-4 md:p-8 space-y-6 max-w-7xl">
+          {/* Demo Mode Banner */}
+          <div className="px-4 py-2.5 rounded-xl border flex items-center gap-2 text-xs font-semibold" style={{ background: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)', color: 'var(--accent)' }}>
+            <Zap className="w-3.5 h-3.5" />
+            🎯 Demo Mode Active — Prototype Preview · 3 Verified Nominees Loaded
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                 <Users className="w-6 h-6" style={{ color: 'var(--accent)' }} />
-                Nominees & Digital Executors
+                Nominees &amp; Digital Executors
               </h1>
               <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
                 Designate trusted family members and legal executors to receive specific encrypted vault categories upon safety trigger release.

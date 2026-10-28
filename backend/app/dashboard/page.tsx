@@ -45,6 +45,20 @@ export default function DashboardPage() {
 
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
 
+  const DEMO_STATS = {
+    totalVaultItems: 6,
+    totalNominees: 3,
+    storageUsed: 47,
+    legacyScore: 85,
+  };
+
+  const DEMO_LOGS = [
+    { id: 'dl1', details: 'HDFC NetBanking Credentials decrypted by owner — AES-256-GCM', status: 'Secured', timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
+    { id: 'dl2', details: 'Nominee Rajesh Kumar Goyal (Father) OTP verified — identity confirmed', status: 'Verified', timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString() },
+    { id: 'dl3', details: 'Inactivity Safety Protocol heartbeat — Day 67 of 90. Monitoring active.', status: 'Active', timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() },
+    { id: 'dl4', details: 'New vault item "LIC Policy" encrypted and stored — category: Business', status: 'Secured', timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString() },
+  ];
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -70,6 +84,13 @@ export default function DashboardPage() {
       const nomineesCount = nomineeRes.nominees ? nomineeRes.nominees.length : 0;
       const logs = logRes.logs || [];
 
+      if (itemsCount === 0 && nomineesCount === 0) {
+        // Use demo data for presentation
+        setStats(DEMO_STATS);
+        setRecentLogs(DEMO_LOGS);
+        return;
+      }
+
       // Dynamic Legacy Score calculation
       let score = 25; // Base score
       if (itemsCount > 0) score += 25;
@@ -85,9 +106,11 @@ export default function DashboardPage() {
         legacyScore: score,
       });
 
-      setRecentLogs(logs.slice(0, 4));
+      setRecentLogs(logs.length > 0 ? logs.slice(0, 4) : DEMO_LOGS);
     } catch (err) {
       console.error('Dashboard load error:', err);
+      setStats(DEMO_STATS);
+      setRecentLogs(DEMO_LOGS);
     } finally {
       setLoading(false);
     }
@@ -121,6 +144,12 @@ export default function DashboardPage() {
         <Sidebar />
 
         <main className="flex-1 p-4 md:p-8 space-y-6 max-w-7xl">
+          {/* Demo Mode Banner */}
+          <div className="px-4 py-2.5 rounded-xl border flex items-center gap-2 text-xs font-semibold" style={{ background: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)', color: 'var(--accent)' }}>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            🎯 Demo Mode Active — Prototype Preview · 85% Legacy Score · 3 Nominees · 6 Vault Assets
+          </div>
+
           {/* Welcome Header */}
           <div
             className="p-6 rounded-3xl border flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden shadow-xl"
