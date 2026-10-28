@@ -163,7 +163,7 @@ export default function VaultPage() {
     if (demoItem) {
       setDecryptingId(itemId);
       setTimeout(() => {
-        setDecryptedMap({ ...decryptedMap, [itemId]: demoItem.content });
+        setDecryptedMap({ ...decryptedMap, [itemId]: demoItem.content || '[AES-256 Decrypted] Content available on full release.' });
         setDecryptingId(null);
       }, 800);
       return;
