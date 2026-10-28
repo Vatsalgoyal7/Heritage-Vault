@@ -14,8 +14,9 @@ const DEMO_NOMINEES: Nominee[] = [
     phone: '+91 98765 43210',
     accessLevel: 'download',
     assignedCategories: ['documents', 'credentials', 'business'],
+    isVerified: true,
+    hasEmergencyAccess: false,
     createdAt: new Date('2026-03-15').toISOString(),
-    userId: 'demo',
   },
   {
     id: 'demo_nominee_2',
@@ -25,8 +26,9 @@ const DEMO_NOMINEES: Nominee[] = [
     phone: '+91 91234 56789',
     accessLevel: 'download',
     assignedCategories: ['documents', 'evidence'],
+    isVerified: true,
+    hasEmergencyAccess: false,
     createdAt: new Date('2026-03-15').toISOString(),
-    userId: 'demo',
   },
   {
     id: 'demo_nominee_3',
@@ -36,8 +38,9 @@ const DEMO_NOMINEES: Nominee[] = [
     phone: '+91 99887 76655',
     accessLevel: 'view',
     assignedCategories: ['intellectual_property', 'cloud_storage'],
+    isVerified: true,
+    hasEmergencyAccess: true,
     createdAt: new Date('2026-04-10').toISOString(),
-    userId: 'demo',
   },
 ];
 
